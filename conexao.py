@@ -1,36 +1,37 @@
 ### CREATE TABLE contato (
 ###    id serial primary key not null,
 ###    nome varchar(100) not null,
-###   email varchar(40) not null,
+###    email varchar(100) not null,
 ###    telefone varchar(20),
-###    data_nasc DATE not null default current_date
+###    data_nascimento DATE not null default current_date
 ###);
 
-
 import psycopg2
+from contato import Contato
 from psycopg2 import sql
 
-def conexao():
-    try:
-        conn = psycopg2.connect(
-            dbname="contato",
-            user="postgres",
-            password="postgres",
-            host="localhost",
-            port="5432"
-        )
-        return conn
-    except Exception as e:
-        print(f"Erro ao conectar ao banco de dados: {e}")
-        return None
+class Conexao:
+    def conexao():
+        try:
+            conn = psycopg2.connect(
+                dbname="contato",
+                user="postgres",
+                password="postgres",
+                host="localhost",
+                port="5432"
+            )
+            return conn
+        except Exception as e:
+            print(f"Erro ao conectar ao banco de dados: {e}")
+            return None
 
-def inserir_dados(conn, nome, email, telefone, data_nasc):
+def inserir_dados(conn, nome, email, telefone, data_nascimento):
     try:
         with conn.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO contato (nome, email, telefone, data_nasc) 
+                INSERT INTO contato (nome, email, telefone, data_nascimento) 
                 VALUES (%s, %s, %s, %s)
-            """, (nome, email, telefone, data_nasc))
+            """, (nome, email, telefone, data_nascimento))
             conn.commit()
             print("Dados inseridos com sucesso.")
     except Exception as e:
@@ -46,14 +47,14 @@ def selecionar_dados(conn):
     except Exception as e:
         print(f"Erro ao ler dados: {e}")
 
-def atualizar_dados(conn, id, nome, email, telefone, data_nasc):
+def atualizar_dados(conn, id, nome, email, telefone, data_nascimento):
     try:
         with conn.cursor() as cursor:
             cursor.execute("""
                 UPDATE contato 
-                SET nome = %s, email = %s, telefone = %s, data_nasc = %s 
+                SET nome = %s, email = %s, telefone = %s, data_nascimento = %s 
                 WHERE id = %s
-            """, (nome, email, telefone, data_nasc, id))
+            """, (nome, email, telefone, data_nascimento, id))
             conn.commit()
             print("Dados atualizados com sucesso.")
     except Exception as e:
@@ -70,6 +71,8 @@ def deletar_dados(conn, id):
 
 if __name__ == "__main__":
 
+    conn = Conexao.conexao()
+
     while(True):
         print("1 - Adicionar")
         print("2 - Listar")
@@ -82,14 +85,14 @@ if __name__ == "__main__":
             nome = input("Digite o nome: ")
             email = input("Digite o email: ")
             telefone = input("Digite o telefone: ")
-            data_nasc = input("Digite a data de nascimento (AAAA-MM-DD): ")
-            conn = conexao()
+            data_nascimento = input("Digite a data de nascimento (AAAA-MM-DD): ")
+            
+            
             if conn:
-                inserir_dados(conn, nome, email, telefone, data_nasc)
+                inserir_dados(conn, nome, email, telefone, data_nascimento)
                 conn.close()
         
         elif opcao == 2:
-            conn = conexao()
             if conn:
                 selecionar_dados(conn)
                 conn.close()
@@ -99,15 +102,13 @@ if __name__ == "__main__":
             nome = input("Digite o nome: ")
             email = input("Digite o email: ")
             telefone = input("Digite o telefone: ")
-            data_nasc = input("Digite a data de nascimento (AAAA-MM-DD): ")
-            conn = conexao()
+            data_nascimento = input("Digite a data de nascimento (AAAA-MM-DD): ")
             if conn:
-                atualizar_dados(conn, id, nome, email, telefone, data_nasc)
+                atualizar_dados(conn, id, nome, email, telefone, data_nascimento)
                 conn.close()
         
         elif opcao == 4:
             id = int(input("Digite o id: "))
-            conn = conexao()
             if conn:
                 deletar_dados(conn, id)
                 conn.close()
